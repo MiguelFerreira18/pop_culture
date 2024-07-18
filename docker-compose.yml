@@ -4,6 +4,8 @@ services:
   app:
     build: .
     env_file: .env
+    ports:
+      - "9090:9090"
     depends_on:
       mysql:
         condition: service_healthy

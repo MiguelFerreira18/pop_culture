@@ -2,11 +2,13 @@ package user
 
 import (
 	"errors"
+	"pop_culture/util/hash"
 	"regexp"
 	"strconv"
 	"time"
 
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type UserDto struct {
@@ -21,8 +23,14 @@ type User struct {
 	Email     *string `gorm:"unique"`
 	Password  string
 	CreatedAt time.Time
-	UpatedAt  time.Time
-	DeletedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt
+}
+
+type FormUser struct {
+	Name     string  `json:"name"`
+	Email    *string `json:"email"`
+	Password string  `json:"password"`
 }
 
 func nameRules(name string) (*string, error) {
@@ -31,7 +39,7 @@ func nameRules(name string) (*string, error) {
 		return nil, errors.New("Name is not the correct size: " + strconv.Itoa(len(name)))
 	}
 	if matchPattern(name, pattern) {
-		return nil, errors.New("Name is ")
+		return nil, errors.New("Name is not conformed")
 	}
 	return &name, nil
 }
@@ -52,8 +60,30 @@ func passwordRules(password string) (*string, error) {
 		return nil, errors.New("The password does not follow the rules")
 	}
 
+	hashedPassword, err := hash.HashPassword(password)
+	if err != nil {
+		return nil, err
+	}
+	return &hashedPassword, nil
 }
-func NewUser(name string, email *string, password string) {
+func NewUser(name string, email *string, password string) (*User, error) {
+	userName, err := nameRules(name)
+	if err != nil {
+		return nil, err
+	}
+	userEmail, err := EmailRules(email)
+	if err != nil {
+		return nil, err
+	}
+	userPassword, err := passwordRules(password)
+	if err != nil {
+		return nil, err
+	}
+	return &User{
+		Name:     *userName,
+		Email:    userEmail,
+		Password: *userPassword,
+	}, nil
 
 }
 

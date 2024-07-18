@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"pop_culture/api/router"
+	"pop_culture/cmd/migration"
 	"pop_culture/config"
 	"pop_culture/logger"
 	"strconv"
@@ -32,9 +33,10 @@ func main() {
 		logger.Fatal().Err(err).Msg("Failed to connect to Database")
 		return
 	}
+	migration.Migrate(db)
+
 	//CREATE ROUTER
 	r := router.New(logger, db)
-
 	server := &http.Server{
 		Addr:         ":" + config.Server.Port,
 		Handler:      r,
@@ -69,6 +71,7 @@ func main() {
 
 	}()
 
+	// http.ListenAndServe(":"+config.Server.Port, r)
 	logger.Info().Msgf("Starting server %v", server.Addr)
 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		logger.Fatal().Err(err).Msg("Server startup failure")
