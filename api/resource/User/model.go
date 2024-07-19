@@ -1,10 +1,7 @@
 package user
 
 import (
-	"errors"
-	"pop_culture/util/hash"
-	"regexp"
-	"strconv"
+	"pop_culture/util/validation"
 	"time"
 
 	"github.com/google/uuid"
@@ -33,49 +30,16 @@ type FormUser struct {
 	Password string  `json:"password"`
 }
 
-func nameRules(name string) (*string, error) {
-	pattern := `(?i)(\b(select|union|insert|update|delete|drop|alter|create|shutdown|exec)\b|\-\-|\;|\#|\')`
-	if len(name) < 5 && len(name) > 20 {
-		return nil, errors.New("Name is not the correct size: " + strconv.Itoa(len(name)))
-	}
-	if matchPattern(name, pattern) {
-		return nil, errors.New("Name is not conformed")
-	}
-	return &name, nil
-}
-func EmailRules(email *string) (*string, error) {
-	pattern := `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
-
-	if matchPattern(*email, pattern) {
-		return email, nil
-	}
-
-	return nil, errors.New("Email does not follow the rules")
-
-}
-func passwordRules(password string) (*string, error) {
-	pattern := `(?i)(\b(select|union|insert|update|delete|drop|alter|create|shutdown|exec)\b|\-\-|\;|\#|\')`
-
-	if matchPattern(password, pattern) {
-		return nil, errors.New("The password does not follow the rules")
-	}
-
-	hashedPassword, err := hash.HashPassword(password)
-	if err != nil {
-		return nil, err
-	}
-	return &hashedPassword, nil
-}
 func NewUser(name string, email *string, password string) (*User, error) {
-	userName, err := nameRules(name)
+	userName, err := validation.UserNameRules(name)
 	if err != nil {
 		return nil, err
 	}
-	userEmail, err := EmailRules(email)
+	userEmail, err := validation.EmailRules(email)
 	if err != nil {
 		return nil, err
 	}
-	userPassword, err := passwordRules(password)
+	userPassword, err := validation.PasswordRules(password)
 	if err != nil {
 		return nil, err
 	}
@@ -84,14 +48,6 @@ func NewUser(name string, email *string, password string) (*User, error) {
 		Email:    userEmail,
 		Password: *userPassword,
 	}, nil
-
-}
-
-func matchPattern(input string, pattern string) bool {
-
-	re := regexp.MustCompile(pattern)
-
-	return re.MatchString(input)
 
 }
 

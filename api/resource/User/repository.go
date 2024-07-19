@@ -35,7 +35,7 @@ func (r *UserRepository) Read(id uuid.UUID) (*User, error) {
 }
 
 func (r *UserRepository) Update(user *User) (int64, error) {
-	result := r.database.Model(&User{}).Select("Name", "Email", "UpatedAt").Where("id = ?", user.ID).Updates(user)
+	result := r.database.Model(&User{}).Select("Name", "Email", "UpdatedAt").Where("id = ?", user.ID).Updates(user)
 
 	return result.RowsAffected, result.Error
 

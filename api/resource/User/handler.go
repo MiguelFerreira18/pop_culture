@@ -27,7 +27,6 @@ func NewUserApi(logger *zerolog.Logger, repository *gorm.DB) *UserApi {
 
 func (up *UserApi) Create(w http.ResponseWriter, r *http.Request) {
 
-	up.logger.Info().Msg("Starting server")
 	reqID := ctx.RequestID(r.Context())
 	form := &FormUser{}
 	if err := json.NewDecoder(r.Body).Decode(form); err != nil {
@@ -96,8 +95,8 @@ func (up *UserApi) Update(w http.ResponseWriter, r *http.Request) {
 
 	user, err := NewUser(form.Name, form.Email, form.Password)
 	if err != nil {
-		up.logger.Error().Err(err).Msg("")
-		e.ServerError(w, e.RespJSONEncodeFailure)
+		up.logger.Error().Str(log.KeyReqID, reqID).Err(err).Msg("")
+		e.ServerError(w, e.RespDomainRulesFailure)
 		return
 	}
 
