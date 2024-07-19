@@ -24,7 +24,6 @@ func NewUserApi(logger *zerolog.Logger, repository *gorm.DB) *UserApi {
 		repository: NewRepository(repository),
 	}
 }
-
 func (up *UserApi) Create(w http.ResponseWriter, r *http.Request) {
 
 	reqID := ctx.RequestID(r.Context())
@@ -50,7 +49,6 @@ func (up *UserApi) Create(w http.ResponseWriter, r *http.Request) {
 	up.logger.Info().Str(log.KeyReqID, reqID).Str("id", addUser.ID.String()).Msg("New User was added")
 	w.WriteHeader(http.StatusCreated)
 }
-
 func (up *UserApi) Read(w http.ResponseWriter, r *http.Request) {
 
 	reqID := ctx.RequestID(r.Context())
