@@ -2,6 +2,7 @@ package router
 
 import (
 	"net/http"
+	mediatype "pop_culture/api/resource/MediaType"
 	user "pop_culture/api/resource/User"
 	"pop_culture/api/resource/health"
 	"pop_culture/api/router/middleware"
@@ -36,6 +37,12 @@ func New(logger *zerolog.Logger, database *gorm.DB) *chi.Mux {
 		r.Method(http.MethodGet, "/users/{id}", requestlog.NewHandler(userAPI.Read, logger))
 		r.Method(http.MethodPut, "/users/{id}", requestlog.NewHandler(userAPI.Update, logger))
 		r.Method(http.MethodDelete, "/users/{id}", requestlog.NewHandler(userAPI.Delete, logger))
+
+		mediaTypeApi := mediatype.NewMediaTypeAPI(logger, database)
+		r.Method(http.MethodPost, "/mediatype", requestlog.NewHandler(mediaTypeApi.Create, logger))
+		r.Method(http.MethodGet, "/mediatype/{id}", requestlog.NewHandler(mediaTypeApi.Read, logger))
+		r.Method(http.MethodPut, "/mediatype/{id}", requestlog.NewHandler(mediaTypeApi.Update, logger))
+		r.Method(http.MethodDelete, "/mediatype/{id}", requestlog.NewHandler(mediaTypeApi.Delete, logger))
 
 	})
 

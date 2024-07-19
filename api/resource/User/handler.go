@@ -135,6 +135,6 @@ func (up *UserApi) Delete(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	up.logger.Info().Str(log.KeyReqID, reqID).Str("id", id.String()).Msg("USer deleted")
+	up.logger.Info().Str(log.KeyReqID, reqID).Str("id", id.String()).Msg("User deleted")
 
 }

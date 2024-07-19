@@ -1,15 +1,16 @@
-package MediaType
+package mediatype
 
 import (
 	"encoding/json"
-	"github.com/go-chi/chi/v5"
-	"github.com/rs/zerolog"
-	"gorm.io/gorm"
 	"net/http"
 	e "pop_culture/api/resource/common/err"
 	"pop_culture/api/resource/common/log"
 	"pop_culture/util/ctx"
 	"strconv"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/rs/zerolog"
+	"gorm.io/gorm"
 )
 
 type MediaTypeAPI struct {
@@ -108,4 +109,28 @@ func (api MediaTypeAPI) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	api.logger.Info().Str(log.KeyReqID, reqID).Str("id", strconv.FormatUint(uint64(intId), 10)).Msg("Media type updated")
+}
+
+func (api MediaTypeAPI) Delete(w http.ResponseWriter, r *http.Request) {
+	reqID := ctx.RequestID(r.Context())
+
+	intId, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		api.logger.Error().Str(log.KeyReqID, reqID).Err(err).Msg("")
+		e.BadRequest(w, e.RespInvalidURLParamID)
+		return
+	}
+
+	rows, err := api.repository.Delete(uint(intId))
+	if err != nil {
+		api.logger.Error().Str(log.KeyReqID, reqID).Err(err).Msg("")
+		e.ServerError(w, e.RespDBDataRemoveFailure)
+		return
+	}
+	if rows == 0 {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	api.logger.Info().Str(log.KeyReqID, reqID).Str("id", strconv.FormatUint(uint64(intId), 10)).Msg("Media Type deleted")
 }

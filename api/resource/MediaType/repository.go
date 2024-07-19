@@ -1,4 +1,4 @@
-package MediaType
+package mediatype
 
 import "gorm.io/gorm"
 

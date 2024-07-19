@@ -1,8 +1,9 @@
-package MediaType
+package mediatype
 
 import (
-	"gorm.io/gorm"
 	"pop_culture/util/validation"
+
+	"gorm.io/gorm"
 )
 
 type TypeMedia struct {
