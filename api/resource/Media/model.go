@@ -15,28 +15,32 @@ type Media struct {
 }
 
 type MediaForm struct {
-	Name string `json:"name"`
+	Name        string `json:"name"`
+	MediaTypeID uint   `json:"mediatypeID"`
 }
 
 type MediaDTO struct {
-	ID   uint
-	Name string
+	ID        uint
+	Name      string
+	TypeMedia *mediatype.TypeMediaDTO
 }
 
-func NewMedia(name string) (*Media, error) {
+func NewMedia(name string, TypeMediaID uint) (*Media, error) {
 	mediaName, err := validation.MediaNameRules(name)
 	if err != nil {
 		return nil, err
 	}
 	return &Media{
-		Name: *mediaName,
+		Name:        *mediaName,
+		MediaTypeID: TypeMediaID,
 	}, nil
 
 }
 
 func (m Media) ToDTO() *MediaDTO {
 	return &MediaDTO{
-		ID:   m.ID,
-		Name: m.Name,
+		ID:        m.ID,
+		Name:      m.Name,
+		TypeMedia: m.MediaType.ToDTO(),
 	}
 }

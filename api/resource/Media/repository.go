@@ -24,7 +24,7 @@ func (r MediaRepository) Create(media *Media) (*Media, error) {
 
 func (r MediaRepository) Read(id uint) (*Media, error) {
 	media := &Media{}
-	if err := r.db.First(media, "id = ?").Error; err != nil {
+	if err := r.db.Where("id = ?", id).Preload("MediaType").First(&media).Error; err != nil {
 		return nil, err
 	}
 	return media, nil
