@@ -1,6 +1,8 @@
 package user
 
 import (
+	media "pop_culture/api/resource/Media"
+	mediatype "pop_culture/api/resource/MediaType"
 	"pop_culture/util/validation"
 	"time"
 
@@ -19,6 +21,8 @@ type User struct {
 	Name      string
 	Email     *string `gorm:"unique"`
 	Password  string
+	Medias    []media.Media         `gorm:"many2many:user_media;"`
+	Interests []mediatype.TypeMedia `gorm:"many2many:user_interests;"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt
