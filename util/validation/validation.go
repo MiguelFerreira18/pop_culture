@@ -56,6 +56,18 @@ func MediaNameRules(media string) (*string, error) {
 	return &media, nil
 }
 
+// Attribute Type Rules
+func AttributeNameRules(name string) (*string, error) {
+	pattern := `(?i)(\b(select|union|insert|update|delete|drop|alter|create|shutdown|exec)\b|\-\-|\;|\#|\')`
+	if len(name) < 3 && len(name) > 15 {
+		return nil, errors.New("Name is not the correct size: " + strconv.Itoa(len(name)))
+	}
+	if matchPattern(name, pattern) {
+		return nil, errors.New("media name is not conformed")
+	}
+	return &name, nil
+}
+
 func matchPattern(input string, pattern string) bool {
 
 	re := regexp.MustCompile(pattern)
