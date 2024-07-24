@@ -2,15 +2,14 @@ package mediatype
 
 import (
 	"encoding/json"
+	"github.com/go-chi/chi/v5"
+	"github.com/rs/zerolog"
+	"gorm.io/gorm"
 	"net/http"
 	e "pop_culture/api/resource/common/err"
 	"pop_culture/api/resource/common/log"
 	"pop_culture/util/ctx"
 	"strconv"
-
-	"github.com/go-chi/chi/v5"
-	"github.com/rs/zerolog"
-	"gorm.io/gorm"
 )
 
 type MediaTypeAPI struct {
@@ -36,6 +35,7 @@ func (api MediaTypeAPI) Create(w http.ResponseWriter, r *http.Request) {
 	mediaType, err := NewTypeMedia(form.Name)
 	if err != nil {
 		api.logger.Error().Str(log.KeyReqID, reqID).Err(err).Msgf("")
+		e.ServerError(w, e.RespDomainRulesFailure)
 		return
 	}
 	addMediaType, err := api.repository.Create(mediaType)

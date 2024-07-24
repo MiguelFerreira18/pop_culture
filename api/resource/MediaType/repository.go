@@ -20,11 +20,11 @@ func (r MediaTypeRepository) Create(media *TypeMedia) (*TypeMedia, error) {
 }
 
 func (r MediaTypeRepository) Read(id uint) (*TypeMedia, error) {
-	user := &TypeMedia{}
-	if err := r.database.First(&user, "id = ?", id).Error; err != nil {
+	newTypeMedia := &TypeMedia{}
+	if err := r.database.Preload("Attributes").First(&newTypeMedia, "id = ?", id).Error; err != nil {
 		return nil, err
 	}
-	return user, nil
+	return newTypeMedia, nil
 }
 
 func (r MediaTypeRepository) Update(media *TypeMedia) (int64, error) {

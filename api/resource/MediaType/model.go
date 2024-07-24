@@ -1,6 +1,7 @@
 package mediatype
 
 import (
+	attribute "pop_culture/api/resource/Attribute"
 	"pop_culture/util/validation"
 
 	"gorm.io/gorm"
@@ -8,15 +9,17 @@ import (
 
 type TypeMedia struct {
 	gorm.Model
-	Name string
+	Name       string
+	Attributes []attribute.Attribute `gorm:"many2many:typeMedia_attribute;"`
 }
 
 type TypeMediaForm struct {
 	Name string `json:"name"`
 }
 type TypeMediaDTO struct {
-	ID   uint
-	Name string
+	ID         uint
+	Name       string
+	Attributes []attribute.AttributeDTO
 }
 
 func NewTypeMedia(name string) (*TypeMedia, error) {
@@ -30,8 +33,14 @@ func NewTypeMedia(name string) (*TypeMedia, error) {
 }
 
 func (tm TypeMedia) ToDTO() *TypeMediaDTO {
+	att := make([]attribute.AttributeDTO, 0, len(tm.Attributes))
+	for _, a := range tm.Attributes {
+		att = append(att, *a.ToDTO())
+	}
+
 	return &TypeMediaDTO{
-		ID:   tm.ID,
-		Name: tm.Name,
+		ID:         tm.ID,
+		Name:       tm.Name,
+		Attributes: att,
 	}
 }
