@@ -2,8 +2,13 @@ package router
 
 import (
 	"net/http"
+	attribute "pop_culture/api/resource/Attribute"
+	media "pop_culture/api/resource/Media"
 	mediatype "pop_culture/api/resource/MediaType"
+	mediatypeattribute "pop_culture/api/resource/MediaTypeAttribute"
 	user "pop_culture/api/resource/User"
+	userinterests "pop_culture/api/resource/UserInterests"
+	usermedia "pop_culture/api/resource/UserMedia"
 	"pop_culture/api/resource/health"
 	"pop_culture/api/router/middleware"
 	requestlog "pop_culture/api/router/middleware/requestLog"
@@ -43,6 +48,33 @@ func New(logger *zerolog.Logger, database *gorm.DB) *chi.Mux {
 		r.Method(http.MethodGet, "/mediatype/{id}", requestlog.NewHandler(mediaTypeApi.Read, logger))
 		r.Method(http.MethodPut, "/mediatype/{id}", requestlog.NewHandler(mediaTypeApi.Update, logger))
 		r.Method(http.MethodDelete, "/mediatype/{id}", requestlog.NewHandler(mediaTypeApi.Delete, logger))
+
+		mediaAPI := media.NewMediaAPI(logger, database)
+		r.Method(http.MethodPost, "/media", requestlog.NewHandler(mediaAPI.Create, logger))
+		r.Method(http.MethodGet, "/media/{id}", requestlog.NewHandler(mediaAPI.Read, logger))
+		r.Method(http.MethodPut, "/media/{id}", requestlog.NewHandler(mediaAPI.Update, logger))
+		r.Method(http.MethodDelete, "/media/{id}", requestlog.NewHandler(mediaAPI.Delete, logger))
+
+		AttributeAPI := attribute.NewAttributeAPI(logger, database)
+		r.Method(http.MethodPost, "/attribute", requestlog.NewHandler(AttributeAPI.Create, logger))
+		r.Method(http.MethodGet, "/attribute/{id}", requestlog.NewHandler(AttributeAPI.Read, logger))
+		r.Method(http.MethodPut, "/attribute/{id}", requestlog.NewHandler(AttributeAPI.Update, logger))
+		r.Method(http.MethodDelete, "/attribute/{id}", requestlog.NewHandler(AttributeAPI.Delete, logger))
+
+		mediaTypeAttributeAPI := mediatypeattribute.NewMediaTypeAttributeAPI(logger, database)
+		r.Method(http.MethodGet, "/mediatype/{id}/attribute", requestlog.NewHandler(mediaTypeAttributeAPI.GetInterestsFromUser, logger))
+		r.Method(http.MethodPost, "/mediatype/{id}/attribute", requestlog.NewHandler(mediaTypeAttributeAPI.AppendAttribute, logger))
+		r.Method(http.MethodDelete, "/mediatype/{id}/attribute", requestlog.NewHandler(mediaTypeAttributeAPI.RemoveAttribute, logger))
+
+		userMediaAPI := usermedia.NewUserMediaAPI(logger, database)
+		r.Method(http.MethodGet, "/user/{id}/media", requestlog.NewHandler(userMediaAPI.GetMediaFromUser, logger))
+		r.Method(http.MethodPost, "/user/{id}/media", requestlog.NewHandler(userMediaAPI.AddMediaToUser, logger))
+		r.Method(http.MethodDelete, "/user/{id}/media", requestlog.NewHandler(userMediaAPI.RemoveMediaFromUser, logger))
+
+		userInterestAPI := userinterests.NewUserInterestAPI(logger, database)
+		r.Method(http.MethodGet, "/user/{id}/interest", requestlog.NewHandler(userInterestAPI.GetInterestsFromUser, logger))
+		r.Method(http.MethodPost, "/user/{id}/interest", requestlog.NewHandler(userInterestAPI.AppendInterestToUser, logger))
+		r.Method(http.MethodDelete, "/user/{id}/interest", requestlog.NewHandler(userInterestAPI.RemoveInterestFromUser, logger))
 
 	})
 
