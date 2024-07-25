@@ -93,7 +93,7 @@ func (api MediaTypeAttributeAPI) RemoveAttribute(w http.ResponseWriter, r *http.
 	mediaType, err := api.repository.RemoveAttribute(uint(mediaTypeID), uint(form.AttributeID))
 	if err != nil {
 		api.logger.Error().Str(log.KeyReqID, reqID).Err(err).Msgf("")
-		e.ServerError(w, e.RespDBDataInsertFailure)
+		e.ServerError(w, e.RespDBDataRemoveFailure)
 		return
 	}
 	api.logger.Info().Str(log.KeyReqID, reqID).Str("id", strconv.FormatUint(uint64(mediaType.ID), 10)).Msg("Attribute was removed from media type")

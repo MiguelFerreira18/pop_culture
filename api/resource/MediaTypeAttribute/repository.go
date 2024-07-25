@@ -30,42 +30,38 @@ func (r MediaTypeAttributeRepository) GetAttributesFromMediaType(mediaTypeID uin
 	return mediaType.Attributes, nil
 }
 
-func (r MediaTypeAttributeRepository) AddAttribute(mediaTypeID uint, attributeID uint) (*mediatype.TypeMedia, error) {
-
-	attribute, mediaType, err := getAttributeAndMediaType(r, attributeID, mediaTypeID)
-	if err != nil {
+func (r MediaTypeAttributeRepository) AddAttribute(mediaTypeID uint, attributeID uint) (*TypemediaAttribute, error) {
+	typemediaAttribute := NewTypeMediaAttribute(mediaTypeID, attributeID)
+	if err := r.db.Create(&typemediaAttribute).Error; err != nil {
 		return nil, err
 	}
-	mediaType.Attributes = append(mediaType.Attributes, *attribute)
 
-	if err := r.db.Save(&mediaType).Error; err != nil {
-		return nil, err
-	}
-	return mediaType, nil
+	return typemediaAttribute, nil
 }
 
-func (r MediaTypeAttributeRepository) RemoveAttribute(mediaTypeID uint, attributeID uint) (*mediatype.TypeMedia, error) {
+func (r MediaTypeAttributeRepository) RemoveAttribute(mediaTypeID uint, attributeID uint) (*TypemediaAttribute, error) {
 
-	attribute, mediaType, err := getAttributeAndMediaType(r, attributeID, mediaTypeID)
-	if err != nil {
+	typeMediaAttribute := TypemediaAttribute{}
+	if err := r.db.Where("type_media_id = ?", mediaTypeID).Where("attribute_id = ?", attributeID).First(&typeMediaAttribute).Error; err != nil {
 		return nil, err
 	}
 
-	if err := r.db.Model(&mediaType).Association("Attributes").Delete(&attribute); err != nil {
+	if err := r.db.Delete(&typeMediaAttribute).Error; err != nil {
 		return nil, err
 	}
-	return mediaType, nil
+
+	return &typeMediaAttribute, nil
 }
 
-func getAttributeAndMediaType(r MediaTypeAttributeRepository, attributeID uint, mediaTypeID uint) (*attribute.Attribute, *mediatype.TypeMedia, error) {
-	attribute := attribute.Attribute{}
-	if err := r.db.Where("id = ?", attributeID).First(&attribute).Error; err != nil {
-		return nil, nil, err
-	}
-
-	mediaType := mediatype.TypeMedia{}
-	if err := r.db.Where("id = ? ", mediaTypeID).Preload("Attributes").First(&mediaType).Error; err != nil {
-		return nil, nil, err
-	}
-	return &attribute, &mediaType, nil
-}
+// func getAttributeAndMediaType(r MediaTypeAttributeRepository, attributeID uint, mediaTypeID uint) (*attribute.Attribute, *mediatype.TypeMedia, error) {
+// 	attribute := attribute.Attribute{}
+// 	if err := r.db.Where("id = ?", attributeID).First(&attribute).Error; err != nil {
+// 		return nil, nil, err
+// 	}
+//
+// 	mediaType := mediatype.TypeMedia{}
+// 	if err := r.db.Where("id = ? ", mediaTypeID).Preload("Attributes").First(&mediaType).Error; err != nil {
+// 		return nil, nil, err
+// 	}
+// 	return &attribute, &mediaType, nil
+// }
