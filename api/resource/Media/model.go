@@ -25,6 +25,8 @@ type MediaDTO struct {
 	TypeMedia *mediatype.TypeMediaDTO
 }
 
+type Medias []*Media
+
 func NewMedia(name string, TypeMediaID uint) (*Media, error) {
 	mediaName, err := validation.MediaNameRules(name)
 	if err != nil {
@@ -43,4 +45,12 @@ func (m Media) ToDTO() *MediaDTO {
 		Name:      m.Name,
 		TypeMedia: m.MediaType.ToDTO(),
 	}
+}
+
+func (ms Medias) ToDTO() []*MediaDTO {
+	dtos := make([]*MediaDTO, len(ms))
+	for i, m := range ms {
+		dtos[i] = m.ToDTO()
+	}
+	return dtos
 }

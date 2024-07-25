@@ -1,6 +1,8 @@
 package mediatype
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
 
 type MediaTypeRepository struct {
 	database *gorm.DB
@@ -11,6 +13,14 @@ func NewMediaTypeRepository(database *gorm.DB) *MediaTypeRepository {
 }
 
 //CRUD
+
+func (r MediaTypeRepository) List() (TypeMedias, error) {
+	mediaType := make([]*TypeMedia, 0)
+	if err := r.database.Preload("Attributes").Find(&mediaType).Error; err != nil {
+		return nil, err
+	}
+	return mediaType, nil
+}
 
 func (r MediaTypeRepository) Create(media *TypeMedia) (*TypeMedia, error) {
 	if err := r.database.Create(&media).Error; err != nil {

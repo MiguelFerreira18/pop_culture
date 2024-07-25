@@ -44,18 +44,21 @@ func New(logger *zerolog.Logger, database *gorm.DB) *chi.Mux {
 		r.Method(http.MethodDelete, "/users/{id}", requestlog.NewHandler(userAPI.Delete, logger))
 
 		mediaTypeApi := mediatype.NewMediaTypeAPI(logger, database)
+		r.Method(http.MethodGet, "/mediatype", requestlog.NewHandler(mediaTypeApi.List, logger))
 		r.Method(http.MethodPost, "/mediatype", requestlog.NewHandler(mediaTypeApi.Create, logger))
 		r.Method(http.MethodGet, "/mediatype/{id}", requestlog.NewHandler(mediaTypeApi.Read, logger))
 		r.Method(http.MethodPut, "/mediatype/{id}", requestlog.NewHandler(mediaTypeApi.Update, logger))
 		r.Method(http.MethodDelete, "/mediatype/{id}", requestlog.NewHandler(mediaTypeApi.Delete, logger))
 
 		mediaAPI := media.NewMediaAPI(logger, database)
+		r.Method(http.MethodGet, "/media", requestlog.NewHandler(mediaAPI.List, logger))
 		r.Method(http.MethodPost, "/media", requestlog.NewHandler(mediaAPI.Create, logger))
 		r.Method(http.MethodGet, "/media/{id}", requestlog.NewHandler(mediaAPI.Read, logger))
 		r.Method(http.MethodPut, "/media/{id}", requestlog.NewHandler(mediaAPI.Update, logger))
 		r.Method(http.MethodDelete, "/media/{id}", requestlog.NewHandler(mediaAPI.Delete, logger))
 
 		AttributeAPI := attribute.NewAttributeAPI(logger, database)
+		r.Method(http.MethodGet, "/attribute", requestlog.NewHandler(AttributeAPI.List, logger))
 		r.Method(http.MethodPost, "/attribute", requestlog.NewHandler(AttributeAPI.Create, logger))
 		r.Method(http.MethodGet, "/attribute/{id}", requestlog.NewHandler(AttributeAPI.Read, logger))
 		r.Method(http.MethodPut, "/attribute/{id}", requestlog.NewHandler(AttributeAPI.Update, logger))

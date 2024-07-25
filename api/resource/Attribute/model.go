@@ -20,6 +20,8 @@ type AttributeForm struct {
 	Name string `json:"name"`
 }
 
+type Attributes []*Attribute
+
 func NewAttribute(name string) (*Attribute, error) {
 
 	validName, err := validation.AttributeNameRules(name)
@@ -40,4 +42,12 @@ func (a Attribute) ToDTO() *AttributeDTO {
 		Name: a.Name,
 	}
 
+}
+
+func (as Attributes) ToDTO() []*AttributeDTO {
+	dtos := make([]*AttributeDTO, len(as))
+	for i, a := range as {
+		dtos[i] = a.ToDTO()
+	}
+	return dtos
 }

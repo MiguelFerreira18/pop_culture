@@ -25,8 +25,22 @@ func NewMediaAPI(logger *zerolog.Logger, database *gorm.DB) *MediaApi {
 		repository: NewMediaRepository(database),
 	}
 }
+func (api *MediaApi) List(w http.ResponseWriter, r *http.Request) {
+	reqID := ctx.RequestID(r.Context())
+	medias, err := api.repository.List()
+	if err != nil {
+		api.logger.Error().Str(log.KeyReqID, reqID).Err(err).Msg("")
+		e.ServerError(w, e.RespDBDataAccessFailure)
+		return
+	}
 
-func (api MediaApi) Create(w http.ResponseWriter, r *http.Request) {
+	if err := json.NewEncoder(w).Encode(medias.ToDTO()); err != nil {
+		api.logger.Error().Str(log.KeyReqID, reqID).Err(err).Msg("")
+		return
+	}
+}
+
+func (api *MediaApi) Create(w http.ResponseWriter, r *http.Request) {
 	reqID := ctx.RequestID(r.Context())
 	form := &MediaForm{}
 	if err := json.NewDecoder(r.Body).Decode(form); err != nil {
@@ -52,10 +66,9 @@ func (api MediaApi) Create(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-func (api MediaApi) Read(w http.ResponseWriter, r *http.Request) {
+func (api *MediaApi) Read(w http.ResponseWriter, r *http.Request) {
 	reqID := ctx.RequestID(r.Context())
 	idStr := chi.URLParam(r, "id")
-	api.logger.Info().Str(log.KeyReqID, reqID).Str("id", idStr).Msg("Captured URL parameter")
 
 	intId, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -82,7 +95,7 @@ func (api MediaApi) Read(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (api MediaApi) Update(w http.ResponseWriter, r *http.Request) {
+func (api *MediaApi) Update(w http.ResponseWriter, r *http.Request) {
 	reqID := ctx.RequestID(r.Context())
 	intId, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
@@ -121,7 +134,7 @@ func (api MediaApi) Update(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (api MediaApi) Delete(w http.ResponseWriter, r *http.Request) {
+func (api *MediaApi) Delete(w http.ResponseWriter, r *http.Request) {
 	reqID := ctx.RequestID(r.Context())
 	intId, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {

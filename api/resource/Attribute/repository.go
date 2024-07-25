@@ -12,6 +12,15 @@ func NewAttributeRepository(db *gorm.DB) *AttributeRepository {
 	}
 }
 
+func (r AttributeRepository) List() (Attributes, error) {
+	attributes := make([]*Attribute, 0)
+	if err := r.db.Find(&attributes).Error; err != nil {
+		return nil, err
+	}
+
+	return attributes, nil
+}
+
 func (r AttributeRepository) Create(a *Attribute) (*Attribute, error) {
 
 	if err := r.db.Create(&a).Error; err != nil {

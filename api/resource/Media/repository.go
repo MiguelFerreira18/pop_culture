@@ -14,6 +14,14 @@ func NewMediaRepository(db *gorm.DB) *MediaRepository {
 	}
 }
 
+func (r MediaRepository) List() (Medias, error) {
+	medias := make([]*Media, 0)
+	if err := r.db.Find(&medias).Error; err != nil {
+		return nil, err
+	}
+	return medias, nil
+}
+
 func (r MediaRepository) Create(media *Media) (*Media, error) {
 
 	if err := r.db.Create(&media).Error; err != nil {

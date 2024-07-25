@@ -24,6 +24,22 @@ func NewMediaTypeAPI(logger *zerolog.Logger, database *gorm.DB) *MediaTypeAPI {
 	}
 }
 
+func (api MediaTypeAPI) List(w http.ResponseWriter, r *http.Request) {
+	reqID := ctx.RequestID(r.Context())
+	mediaTypes, err := api.repository.List()
+	if err != nil {
+		api.logger.Error().Str(log.KeyReqID, reqID).Err(err).Msg("")
+		e.ServerError(w, e.RespDBDataAccessFailure)
+		return
+	}
+
+	if err := json.NewEncoder(w).Encode(mediaTypes.ToDTO()); err != nil {
+		api.logger.Error().Str(log.KeyReqID, reqID).Err(err).Msg("")
+		e.ServerError(w, e.RespJSONEncodeFailure)
+		return
+	}
+}
+
 func (api MediaTypeAPI) Create(w http.ResponseWriter, r *http.Request) {
 	reqID := ctx.RequestID(r.Context())
 	form := &TypeMediaForm{}

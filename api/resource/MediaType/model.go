@@ -10,7 +10,7 @@ import (
 type TypeMedia struct {
 	gorm.Model
 	Name       string
-	Attributes []attribute.Attribute `gorm:"many2many:typeMedia_attribute;"`
+	Attributes []attribute.Attribute `gorm:"many2many:typemedia_attribute;"`
 }
 
 type TypeMediaForm struct {
@@ -21,6 +21,8 @@ type TypeMediaDTO struct {
 	Name       string
 	Attributes []attribute.AttributeDTO
 }
+
+type TypeMedias []*TypeMedia
 
 func NewTypeMedia(name string) (*TypeMedia, error) {
 	mediaName, err := validation.MediaNameRules(name)
@@ -43,4 +45,12 @@ func (tm TypeMedia) ToDTO() *TypeMediaDTO {
 		Name:       tm.Name,
 		Attributes: att,
 	}
+}
+
+func (tms TypeMedias) ToDTO() []*TypeMediaDTO {
+	tpms := make([]*TypeMediaDTO, len(tms))
+	for i, t := range tms {
+		tpms[i] = t.ToDTO()
+	}
+	return tpms
 }

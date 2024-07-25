@@ -25,6 +25,21 @@ func NewAttributeAPI(logger *zerolog.Logger, db *gorm.DB) *AttributeAPI {
 		repository: NewAttributeRepository(db),
 	}
 }
+func (api AttributeAPI) List(w http.ResponseWriter, r *http.Request) {
+	reqID := ctx.RequestID(r.Context())
+	atts, err := api.repository.List()
+	if err != nil {
+		api.logger.Error().Str(log.KeyReqID, reqID).Err(err).Msg("")
+		e.ServerError(w, e.RespDBDataAccessFailure)
+		return
+	}
+
+	if err := json.NewEncoder(w).Encode(atts.ToDTO()); err != nil {
+		api.logger.Error().Str(log.KeyReqID, reqID).Err(err).Msg("")
+		e.ServerError(w, e.RespJSONEncodeFailure)
+		return
+	}
+}
 
 func (api AttributeAPI) Create(w http.ResponseWriter, r *http.Request) {
 	reqID := ctx.RequestID(r.Context())
