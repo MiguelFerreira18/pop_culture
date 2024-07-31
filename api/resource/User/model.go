@@ -3,6 +3,7 @@ package user
 import (
 	media "pop_culture/api/resource/Media"
 	mediatype "pop_culture/api/resource/MediaType"
+	role "pop_culture/api/resource/Role"
 	"pop_culture/util/validation"
 	"time"
 
@@ -23,6 +24,8 @@ type User struct {
 	Password  string
 	Medias    []media.Media         `gorm:"many2many:user_media;"`
 	Interests []mediatype.TypeMedia `gorm:"many2many:user_interests;"`
+	RoleID    uint
+	Role      role.Role `gorm:"foreignKey:RoleID"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt
@@ -32,9 +35,10 @@ type FormUser struct {
 	Name     string  `json:"name"`
 	Email    *string `json:"email"`
 	Password string  `json:"password"`
+	Role     uint    `json:"role"`
 }
 
-func NewUser(name string, email *string, password string) (*User, error) {
+func NewUser(name string, email *string, password string, role uint) (*User, error) {
 	userName, err := validation.UserNameRules(name)
 	if err != nil {
 		return nil, err
@@ -51,6 +55,7 @@ func NewUser(name string, email *string, password string) (*User, error) {
 		Name:     *userName,
 		Email:    userEmail,
 		Password: *userPassword,
+		RoleID:   role,
 	}, nil
 
 }

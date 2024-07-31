@@ -34,9 +34,10 @@ func (up *UserApi) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := NewUser(form.Name, form.Email, form.Password)
+	user, err := NewUser(form.Name, form.Email, form.Password, form.Role)
 	if err != nil {
 		up.logger.Error().Str(log.KeyReqID, reqID).Err(err).Msg("")
+		e.ServerError(w, e.RespDomainRulesFailure)
 		return
 	}
 	user.ID = uuid.New()
@@ -91,7 +92,7 @@ func (up *UserApi) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := NewUser(form.Name, form.Email, form.Password)
+	user, err := NewUser(form.Name, form.Email, form.Password, form.Role)
 	if err != nil {
 		up.logger.Error().Str(log.KeyReqID, reqID).Err(err).Msg("")
 		e.ServerError(w, e.RespDomainRulesFailure)
