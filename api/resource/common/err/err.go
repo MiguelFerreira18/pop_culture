@@ -14,6 +14,9 @@ var (
 	RespInvalidURLParamID = []byte(`{"error": "invalid url param-id"}`)
 
 	RespDomainRulesFailure = []byte(`{"error": "domain rules failure"}`)
+
+	RespLoginFailure            = []byte(`{"error": "Credentials were incorrect"}`)
+	RespJWTTokenCreationFailure = []byte(`{"error": "JWT token could not be created"}`)
 )
 
 type Error struct {
