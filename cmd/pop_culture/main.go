@@ -8,11 +8,13 @@ import (
 	"os/signal"
 	"pop_culture/api/router"
 	"pop_culture/cmd/migration"
-	"pop_culture/config"
+	c "pop_culture/config"
 	"pop_culture/logger"
 	"strconv"
 	"syscall"
 
+	"github.com/go-chi/jwtauth/v5"
+	"github.com/lestrrat-go/jwx/v2/jwa"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -21,9 +23,22 @@ const fmtdbString = "%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=%s"
 
 func main() {
 
-	config := config.New()
+	config := c.New()
 
 	logger := logger.Logger(config.Server.Debug)
+
+	privateKey, err := c.LoadPrivateKey(config.KeyPaths.PrivateKeyPath)
+	if err != nil {
+		logger.Error().Err(err).Msg("")
+		return
+	}
+	publicKey, err := c.LoadPublicKey(config.KeyPaths.PublicKeyPath)
+	if err != nil {
+		logger.Error().Err(err).Msg("")
+		return
+	}
+
+	tokenAuth := jwtauth.New(jwa.RS256.String(), privateKey, publicKey)
 
 	port := strconv.Itoa(int(config.Database.UrlPort))
 
@@ -36,7 +51,7 @@ func main() {
 	migration.Migrate(db)
 
 	//CREATE ROUTER
-	r := router.New(logger, db)
+	r := router.New(logger, db, tokenAuth)
 	server := &http.Server{
 		Addr:         ":" + config.Server.Port,
 		Handler:      r,

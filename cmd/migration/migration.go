@@ -6,13 +6,14 @@ import (
 	m "pop_culture/api/resource/Media"
 	mt "pop_culture/api/resource/MediaType"
 	mediatypeattribute "pop_culture/api/resource/MediaTypeAttribute"
+	role "pop_culture/api/resource/Role"
 	u "pop_culture/api/resource/User"
 
 	"gorm.io/gorm"
 )
 
 func Migrate(db *gorm.DB) {
-	db.AutoMigrate(&u.User{}, &mt.TypeMedia{}, &m.Media{}, &a.Attribute{}, &mediatypeattribute.TypemediaAttribute{})
+	db.AutoMigrate(&u.User{}, &mt.TypeMedia{}, &m.Media{}, &a.Attribute{}, &mediatypeattribute.TypemediaAttribute{}, &role.Role{})
 	if err := db.SetupJoinTable(&mt.TypeMedia{}, "Attributes", &mediatypeattribute.TypemediaAttribute{}); err != nil {
 		log.Fatal(err)
 		return

@@ -3,9 +3,11 @@ package router
 import (
 	"net/http"
 	attribute "pop_culture/api/resource/Attribute"
+	auth "pop_culture/api/resource/Auth"
 	media "pop_culture/api/resource/Media"
 	mediatype "pop_culture/api/resource/MediaType"
 	mediatypeattribute "pop_culture/api/resource/MediaTypeAttribute"
+	role "pop_culture/api/resource/Role"
 	user "pop_culture/api/resource/User"
 	userinterests "pop_culture/api/resource/UserInterests"
 	usermedia "pop_culture/api/resource/UserMedia"
@@ -15,13 +17,12 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
+	"github.com/go-chi/jwtauth/v5"
 	"github.com/rs/zerolog"
 	"gorm.io/gorm"
 )
 
-const apiVersion = "/api/v1/"
-
-func New(logger *zerolog.Logger, database *gorm.DB) *chi.Mux {
+func New(logger *zerolog.Logger, database *gorm.DB, jwtAuth *jwtauth.JWTAuth) *chi.Mux {
 	r := chi.NewRouter()
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins: []string{"https://*", "http://*"},
@@ -33,10 +34,16 @@ func New(logger *zerolog.Logger, database *gorm.DB) *chi.Mux {
 		MaxAge:           300, // Maximum value not ignored by any of major browsers
 	}))
 
+	// verifier := middleware.NewJWTVerifier(logger, database)
+
 	r.Use(middleware.RequestID)
 	r.Use(middleware.ContentTypeJSON)
 	r.Get("/api", health.Read)
 	r.Route("/v1", func(r chi.Router) {
+
+		AuthApi := auth.NewAuthAPI(logger, database, jwtAuth)
+		r.Method(http.MethodPost, "/login", requestlog.NewHandler(AuthApi.Login, logger))
+
 		userAPI := user.NewUserApi(logger, database)
 		r.Method(http.MethodPost, "/users", requestlog.NewHandler(userAPI.Create, logger))
 		r.Method(http.MethodGet, "/users/{id}", requestlog.NewHandler(userAPI.Read, logger))
@@ -78,6 +85,19 @@ func New(logger *zerolog.Logger, database *gorm.DB) *chi.Mux {
 		r.Method(http.MethodGet, "/user/{id}/interest", requestlog.NewHandler(userInterestAPI.GetInterestsFromUser, logger))
 		r.Method(http.MethodPost, "/user/{id}/interest", requestlog.NewHandler(userInterestAPI.AppendInterestToUser, logger))
 		r.Method(http.MethodDelete, "/user/{id}/interest", requestlog.NewHandler(userInterestAPI.RemoveInterestFromUser, logger))
+
+		roleAPI := role.NewRoleAPI(logger, database)
+		// r.With(middleware.RoleCheck(*verifier, "Admin", "User")).Route("/role", func(r chi.Router) {
+		// 	r.Method(http.MethodPost, "/", requestlog.NewHandler(roleAPI.Create, logger))
+		// 	r.Method(http.MethodGet, "/{id}", requestlog.NewHandler(roleAPI.Read, logger))
+		// 	r.Method(http.MethodPut, "/{id}", requestlog.NewHandler(roleAPI.Update, logger))
+		// 	r.Method(http.MethodDelete, "/{id}", requestlog.NewHandler(roleAPI.Delete, logger))
+		//
+		// })
+		r.Method(http.MethodPost, "/role", requestlog.NewHandler(roleAPI.Create, logger))
+		r.Method(http.MethodGet, "/role/{id}", requestlog.NewHandler(roleAPI.Read, logger))
+		r.Method(http.MethodPut, "/role/{id}", requestlog.NewHandler(roleAPI.Update, logger))
+		r.Method(http.MethodDelete, "/role/{id}", requestlog.NewHandler(roleAPI.Delete, logger))
 
 	})
 
